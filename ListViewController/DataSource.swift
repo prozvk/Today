@@ -29,14 +29,12 @@ extension ReminderListViewController {
             }
             var snapshot = Snapshot()
             snapshot.appendSections([0])
-            print("count of filtred reminders in snapshot: ", filtredReminders.count)
             snapshot.appendItems(filtredReminders.map { $0.id })
             if !ids.isEmpty {
                 snapshot.reloadItems(ids)
             }
             dataSource.apply(snapshot)
             headerView?.progress = progress
-            print("we are update snapshot")
         }
         
     }
@@ -61,7 +59,6 @@ extension ReminderListViewController {
     }
     
     func completeReminder(with id: Reminder.ID) {
-        print("complete reminder")
         var reminder = remindr(for: id)
         reminder.isComplete.toggle()
         update(reminder, with: id)
@@ -89,37 +86,32 @@ extension ReminderListViewController {
     }
     
     func prepareReminderStore() {
-        DispatchQueue.main.async {
-            do {
-                try self.reminderStore.requestAccess()
-                
-                try self.reminderStore.readAll { [weak self] reminders in
-                    self?.reminders = reminders
-                    print("we are get reminders")
-                }
-                NotificationCenter.default.addObserver(self, selector: #selector(self.eventStoreChanged(_:)), name: .EKEventStoreChanged, object: nil)
-            } catch TodayError.accessDenied, TodayError.accessRestricted {
-                #if DEBUG
-                self.reminders = Reminder.sampleData
-                #endif
-            } catch {
-                self.showError(error)
+        do {
+            try self.reminderStore.requestAccess()
+            
+            try self.reminderStore.readAll { [weak self] reminders in
+                self?.reminders = reminders
+                self?.updateSnapshot()
             }
-            print("update snaphot 2")
-            self.updateSnapshot()
+            NotificationCenter.default.addObserver(self, selector: #selector(self.eventStoreChanged(_:)), name: .EKEventStoreChanged, object: nil)
+        } catch TodayError.accessDenied, TodayError.accessRestricted {
+            #if DEBUG
+            self.reminders = Reminder.sampleData
+            #endif
+        } catch {
+            self.showError(error)
         }
+        self.updateSnapshot()
     }
     
     func reminderStoreChanged() {
-        DispatchQueue.main.async {
-            do {
-                try self.reminderStore.readAll { [weak self] reminders in
-                    self?.reminders = reminders
-                    self?.updateSnapshot()
-                }
-            } catch {
-                self.showError(error)
+        do {
+            try self.reminderStore.readAll { [weak self] reminders in
+                self?.reminders = reminders
+                self?.updateSnapshot()
             }
+        } catch {
+            self.showError(error)
         }
     }
     
@@ -160,6 +152,5 @@ extension ReminderListViewController {
         } catch {
             showError(error)
         }
-        print("update")
-    } 
+    }
 }

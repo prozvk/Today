@@ -30,16 +30,14 @@ class ReminderListViewController: UICollectionViewController {
     }
     
     @objc func storeChanged() {
-        print("store Changed")
         prepareReminderStore()
-        print("update snaphot 1")
         updateSnapshot()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //NotificationCenter.default.addObserver(self, selector: #selector(storeChanged), name: .EKEventStoreChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(storeChanged), name: .EKEventStoreChanged, object: nil)
         
         collectionView.backgroundColor = .todayGradientFutureBegin
         
@@ -122,12 +120,51 @@ class ReminderListViewController: UICollectionViewController {
     
     // MARK: - Layout in collection view
     private func listLayout() -> UICollectionViewCompositionalLayout {
-        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
-        listConfiguration.headerMode = .supplementary
-        listConfiguration.showsSeparators = false
-        listConfiguration.trailingSwipeActionsConfigurationProvider = makeSwipeActions
-        listConfiguration.backgroundColor = .clear
-        return UICollectionViewCompositionalLayout.list(using: listConfiguration)
+//________
+//        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .grouped)
+//        listConfiguration.headerMode = .supplementary
+//        listConfiguration.showsSeparators = false
+//        listConfiguration.trailingSwipeActionsConfigurationProvider = makeSwipeActions
+//        listConfiguration.backgroundColor = .clear
+//        return UICollectionViewCompositionalLayout.list(using: listConfiguration)
+//________
+        let layout = UICollectionViewCompositionalLayout { (sectionIndex, layoutEnviroment) -> NSCollectionLayoutSection? in
+            if sectionIndex == 0 {
+                var config = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+                config.headerMode = .supplementary
+                config.backgroundColor = .clear
+                config.trailingSwipeActionsConfigurationProvider = self.makeSwipeActions
+                let section = NSCollectionLayoutSection.list(using: config, layoutEnvironment: layoutEnviroment)
+                return section
+            }
+            return nil
+        }
+
+        return layout
+//________
+//        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+//
+//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//        item.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
+//
+//        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.5))
+//
+//        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: 2)
+//
+//        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(100))
+//        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: "header", alignment: .top)
+//
+//        let section = NSCollectionLayoutSection(group: group)
+//        section.boundarySupplementaryItems = [header]
+//        let layout = UICollectionViewCompositionalLayout(section: section)
+//        return layout
+//________
+//        var listConfiguration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+//        listConfiguration.headerMode = .supplementary
+//        listConfiguration.showsSeparators = true
+//        listConfiguration.trailingSwipeActionsConfigurationProvider = makeSwipeActions
+//        listConfiguration.backgroundColor = .clear
+//        return UICollectionViewCompositionalLayout.list(using: listConfiguration)
     }
     
     // MARK: - Swipe

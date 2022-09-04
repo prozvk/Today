@@ -19,7 +19,6 @@ class ReminderStore {
     
     func requestAccess() throws {
         let status = EKEventStore.authorizationStatus(for: .reminder)
-        print("status: ", status)
         switch status {
         case .authorized:
             return
@@ -79,7 +78,9 @@ class ReminderStore {
                         return nil
                     }
                 }
-                completion(reminders)
+                DispatchQueue.main.async {
+                    completion(reminders)
+                }
             }
             catch {
                 print(error)

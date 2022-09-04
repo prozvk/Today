@@ -7,13 +7,8 @@
 
 import Foundation
 
-
-//ToDo: formatted видимо просто метод стринга. надо разобраться как это сделать для даты
-
 extension Date {
     var dayAndTimeText: String {
-        //let timeText = formatted(date: .omitted, time: .shortened)
-        
         let time = self
         let formatter = DateFormatter()
         formatter.timeStyle = .short
